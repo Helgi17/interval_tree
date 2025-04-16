@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tree.h"
+#include "pair.h"
 
 namespace SimpleTree
 {
@@ -21,6 +22,32 @@ namespace SimpleTree
 	
 	TreeNodeBase* tree_decrement(TreeNodeBase* x) {
 		return x;
+	}
+
+	void insert_and_rebalance(const bool insert_left,
+					TreeNodeBase* x,
+					TreeNodeBase* p,
+					TreeNodeBase& header) {
+		TreeNodeBase*& root = header.parent;
+		x->parent = p;
+		x->left = nullptr;
+		x->right = nullptr;
+
+		if (insert_left) {
+			p->left = x;
+			if (p == &header) {
+				header.parent = x;
+				header.right = x;
+			} else if (p == header.left) {
+				header.left = x;
+			}
+		} else {
+			p->right = x;
+			if (p == header.right) {
+				header.right = x;
+			}
+		}
+
 	}
 
 	template <typename T>
@@ -88,6 +115,7 @@ namespace SimpleTree
 	template <typename T>
 	class Tree {
 	protected:
+		typedef T value_type;
 		typedef TreeNode<T>* node_ptr;
 		typedef TreeNodeBase* base_ptr;
 		typedef Iterator<T> iterator;
@@ -100,7 +128,27 @@ namespace SimpleTree
 			return iterator(&this->header.header); 
 		}
 
-		
+		iterator insert(T val) {
+			return iterator(&this->header.header);
+		}		
+	
+	protected:
+		node_ptr get_node() {
+			return new TreeNode<T>();
+		}
+
+		void del_node(node_ptr p) {
+			delete p;
+		}
+
+		void construct_node(node_ptr node, const value_type& value) {
+			node->value = value;
+		}
+
+		Pair<base_ptr, base_ptr> get_insert_pos(const value_type& value) {
+			Pair<base_ptr, base_ptr> p(nullptr, nullptr);			
+			return p;
+		}
 
 	private:
 		node_ptr root;
