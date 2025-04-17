@@ -1,5 +1,6 @@
 #include <iostream>
 #include "simpletree.h"
+#include "interval.h"
 
 template <typename Key>
 struct keyOfValue {
@@ -18,7 +19,6 @@ struct key_comp {
 
 int main()
 {
-
 	SimpleTree::Tree<int, int, 
 			keyOfValue<int>,	
 			key_comp > tree;
@@ -38,5 +38,21 @@ int main()
 	for (auto it = tree.begin(); it != tree.end(); ++it) {
 		std::cout << *it << std::endl;
 	}
+
+	NSInterval::Interval<int> interval1(1, 10), interval2(21, 22),
+			interval3(12, 19);
+	std::cout << "intervals compare " << 
+			NSInterval::Compare()(interval2, interval1) <<
+			std::endl;
+	SimpleTree::Tree<int, NSInterval::Interval<int>,
+			NSInterval::KeyOfValue<int>,
+			key_comp> intervalTree;
+	intervalTree.insert(interval1);
+	intervalTree.insert(interval2);
+	intervalTree.insert(interval3);
+	intervalTree.erase(intervalTree.begin());
+	NSInterval::Interval<int> intervalt = *(++intervalTree.begin());
+	std::cout << intervalt.leftborder << std::endl;
+
 	return 0;
 }
