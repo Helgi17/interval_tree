@@ -5,3 +5,5 @@ set(CXX_STANDARD_REQUIRED ON)
 
 add_executable(main main.cpp)
 target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(interval_map interval_map.cpp)

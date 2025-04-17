@@ -7,7 +7,8 @@ class Interval
 {
 public:
 	Interval(T left, T right): leftborder(left), rightborder(right) {}
-	Interval(): leftborder(0), rightborder(0) {};
+	Interval(): leftborder(0), rightborder(0) {}
+	Interval(T value): leftborder(value), rightborder(value) {}
 
 	T leftborder;
 	T rightborder;
@@ -15,7 +16,7 @@ public:
 
 	struct Compare {
 		template <typename T> 
-		bool operator()(Interval<T>& a, Interval<T>b) {
+		bool operator()(const Interval<T>& a, const Interval<T>& b) {
 			return (a.leftborder < b.leftborder);
 		}
 	};
@@ -24,7 +25,7 @@ public:
 	struct KeyOfValue {
 		template <typename T>
 		Key operator()(const Interval<T>& a){
-			return static_cast<Key>(a.leftborder);
+			return static_cast<Key>(a);
 		}
 	};
 }

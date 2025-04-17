@@ -296,6 +296,8 @@ namespace SimpleTree
 		typedef const TreeNode<Val>* const_node_ptr;
 		typedef TreeNodeBase* base_ptr;
 		typedef const TreeNodeBase* const_base_ptr;
+	
+	public:
 		typedef Iterator<Val> iterator;
 	
 	private:
@@ -303,12 +305,19 @@ namespace SimpleTree
 			return new TreeNode<Val>();
 		}
 
+		node_ptr get_node(const Val& value) {
+			return new TreeNode<Val>(value);
+		}
+
 		void drop_node(node_ptr p) {
 			delete p;
 		}
 
 		void construct_node(node_ptr node, const value_type& value) {
-			node->value = value;
+			if constexpr (!std::is_trivially_destructible_v<value_type>) {
+				node->value.~value_type();
+			}
+			new (&node->value) value_type(value);
 			node->height = 0;
 		}
 
@@ -351,8 +360,9 @@ namespace SimpleTree
 			return iterator(z);
 		}
 
+	public:
 		Pair<typename Tree<Key, Val, KeyOfValue, Compare>::iterator, bool> 
-			insert_unique(value_type& value) {
+			insert_unique(const value_type& value) {
 			typedef Pair<iterator, bool> Res;
 			Pair<base_ptr, base_ptr> res = get_insert_pos(KeyOfValue()(value));
 			if (res.y) {

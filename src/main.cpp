@@ -23,9 +23,9 @@ int main()
 			interval2(21, 22),
 			interval3(12, 19);
 
-	SimpleTree::Tree<int, NSInterval::Interval<int>,
-			NSInterval::KeyOfValue<int>,
-			key_comp> intervalTree;
+	SimpleTree::Tree<NSInterval::Interval<int>, NSInterval::Interval<int>,
+			NSInterval::KeyOfValue<NSInterval::Interval<int>>,
+			NSInterval::Compare> intervalTree;
 	
 	intervalTree.insert(interval1);
 	intervalTree.insert(interval2);
