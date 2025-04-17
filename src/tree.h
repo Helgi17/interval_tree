@@ -4,6 +4,7 @@ struct TreeNodeBase
 {
 	typedef TreeNodeBase* base_ptr;
 
+	int height;
 	base_ptr parent;
 	base_ptr left;
 	base_ptr right;	

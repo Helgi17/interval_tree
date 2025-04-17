@@ -54,6 +54,73 @@ namespace SimpleTree
 		return x;
 	}
 
+	int height(TreeNodeBase* node) {
+		if (nullptr == node) return 0;
+		return node->height;
+	}
+
+	void update_height(TreeNodeBase* node) {
+		node->height = 
+			std::max(height(node->left), height(node->right)) + 1;
+	}
+
+	int bf(TreeNodeBase* node) {
+		if (nullptr == node) return 0;
+		return height(node->left) - height(node->right);
+	}
+
+	TreeNodeBase* rotateRight(TreeNodeBase* node) {
+		if (nullptr == node || nullptr == node->left) return node;
+		TreeNodeBase* tmp = node->left;
+		tmp->parent = node->parent;
+		node->parent = tmp;
+		node->left = tmp->right;
+		if (nullptr != tmp->left) {
+			tmp->right->parent = node;
+		}
+		tmp->right = node;
+
+		update_height(tmp);
+		update_height(node);
+
+		return tmp;
+	}
+
+	TreeNodeBase* rotateLeft(TreeNodeBase* node) {
+		if (nullptr == node || nullptr == node->right) return node;
+		TreeNodeBase* tmp = node->right;
+		tmp->parent = node->parent;
+		node->parent = tmp;
+		node->right = tmp->left;
+		if (nullptr != tmp->left) {
+			tmp->left->parent = node;
+		}
+		tmp->left = node;
+
+		update_height(tmp);
+		update_height(node);
+
+		return tmp;
+	}		
+
+	TreeNodeBase* balance(TreeNodeBase* node) {
+		if (nullptr == node) return node;
+		update_height(node);
+
+		if (bf(node) == 2) {
+			if (bf(node->left) < 0) {
+				node->left = rotateLeft(node->left);
+			}	
+			return rotateRight(node);
+		} else if (bf(node) == -2) {
+			if (bf(node->right) > 0) {
+				node->right = rotateRight(node->right);
+			}
+			return rotateLeft(node);
+		}
+		return node;
+	}
+
 	void insert_and_rebalance(const bool insert_left,
 					TreeNodeBase* x,
 					TreeNodeBase* p,
@@ -78,6 +145,15 @@ namespace SimpleTree
 			}
 		}
 
+		while (x != root) {
+			x = balance(x);
+			x = x->parent;
+		}
+		x = balance(x);
+		header.parent = x;
+	}
+
+	void rebalance_for_erase(TreeNodeBase* const z, TreeNodeBase& header) {
 	}
 
 	template <typename T>
@@ -174,6 +250,7 @@ namespace SimpleTree
 
 		void construct_node(node_ptr node, const value_type& value) {
 			node->value = value;
+			node->height = 0;
 		}
 
 	
