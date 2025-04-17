@@ -374,6 +374,11 @@ namespace SimpleTree
 			return iterator(&this->header.header); 
 		}
 
+		iterator find(const Key& key) {
+			Pair<base_ptr, base_ptr> res = get_insert_pos(key);
+			return iterator(res.x);
+		}
+
 		iterator insert(Val val) {
 			return insert_unique(val).x;
 		}		
