@@ -153,7 +153,66 @@ namespace SimpleTree
 		header.parent = x;
 	}
 
-	void rebalance_for_erase(TreeNodeBase* const z, TreeNodeBase& header) {
+	TreeNodeBase* get_min(TreeNodeBase* node) {
+		if (nullptr != node->left) {
+			return get_min(node->left);
+		}
+		return node;
+	}
+
+	TreeNodeBase* replace_min(TreeNodeBase* node) {
+		if (nullptr == node->left) {
+			return node->right;
+		}
+		node->left = replace_min(node->left);
+		return balance(node);
+	}
+
+	TreeNodeBase* rebalance_for_erase(
+					TreeNodeBase* const z, TreeNodeBase& header) {
+
+		TreeNodeBase* parent = z->parent;
+		TreeNodeBase* left = z->left;
+		TreeNodeBase* right = z->right;
+		TreeNodeBase*& leftmost = header.left;
+		TreeNodeBase*& rightmost = header.right;
+
+		if (z == parent->left) {
+			if (nullptr == right) {
+				parent->left = left;
+				if (nullptr != left) {
+					left->parent = parent;
+				}
+			} else {
+				TreeNodeBase* min = get_min(right);
+				min->right = replace_min(right);
+				min->left = left;
+				balance(min);
+				parent->left = min;
+				min->parent = parent;
+			}
+			leftmost = TreeNodeBase::sMinimum(parent);
+		} else {
+			if (nullptr == right) {
+				parent->right = left;
+				if (nullptr != left) {
+					left->parent = parent;
+				}
+			} else {
+				TreeNodeBase* min = get_min(right);
+				min->right = replace_min(right);
+				min->left = left;
+				balance(min);
+				parent->right = min;
+				min->parent = parent;
+			}
+			rightmost = TreeNodeBase::sMaximum(parent);
+		}
+		if (parent != &header) {
+			parent = balance(parent);
+		}
+		header.parent = parent;
+		return z;
 	}
 
 	template <typename T>
@@ -244,7 +303,7 @@ namespace SimpleTree
 			return new TreeNode<Val>();
 		}
 
-		void del_node(node_ptr p) {
+		void drop_node(node_ptr p) {
 			delete p;
 		}
 
@@ -318,6 +377,13 @@ namespace SimpleTree
 		iterator insert(Val val) {
 			return insert_unique(val).x;
 		}		
+
+		void erase(iterator position) {
+			node_ptr y = static_cast<node_ptr>(
+					rebalance_for_erase(position.current,
+					this->header.header));
+			drop_node(y);
+		}
 	
 	protected:
 		Pair<base_ptr, base_ptr> get_insert_pos(const key_type k) {

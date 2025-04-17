@@ -32,8 +32,9 @@ int main()
 	std::cout << "insert " << *(tree.insert(3)) << std::endl;
 	if (tree.begin() != tree.end()) {
 		std::cout << "fda" << std::endl;
-		std::cout << *(tree.begin()) << std::endl;
+		std::cout << *(tree.begin()) << std::endl << std::endl;
 	}
+	tree.erase(tree.begin());
 	for (auto it = tree.begin(); it != tree.end(); ++it) {
 		std::cout << *it << std::endl;
 	}
