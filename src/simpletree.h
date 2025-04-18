@@ -160,23 +160,11 @@ namespace SimpleTree
 	}
 
 	TreeNodeBase* get_min(TreeNodeBase* node) {
-		if (nullptr != node->left) {
-			return get_min(node->left);
+		while (nullptr != node->left) {
+			node = node->left;
 		}
 		return node;
 	}
-
-	TreeNodeBase* replace_min(TreeNodeBase* node) {
-		if (nullptr == node->left) {
-			return node->right;
-		}
-		node->left = replace_min(node->left);
-		if (nullptr != node->left) {
-			node->left->parent = node;
-		}
-		return balance(node);
-	}
-
 
 	TreeNodeBase* rebalance_for_erase(
 					TreeNodeBase* const z, TreeNodeBase& header) {
@@ -204,14 +192,30 @@ namespace SimpleTree
 			}
 		} else {
 			min = get_min(right);
-			min->right = replace_min(right);
-			if (nullptr != min->right) {
-				min->right->parent = min;
-			} 
-			min->left = left;
+
+			if (min != right) {
+				min->parent->left = min->right;
+				if (nullptr != min->right) {
+					min->right->parent = min->parent;
+				} 
+				right->parent = min;
+				min->right = right;
+			}
+			
 			if (nullptr != left)
 				left->parent = min;	
+			min->left = left;
+			
+			TreeNodeBase* x = min->parent;
+			if (min != right) {
+				while (x != right) {
+					x = balance(x);
+					x->parent->left = x;
+					x = x->parent;
+				}
+			}
 			min->parent = parent;
+			balance(min);
 		}
 
 		if (parent != &header) {

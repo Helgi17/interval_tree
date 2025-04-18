@@ -8,3 +8,6 @@ target_include_directories(tree_example PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 add_executable(interval_map_example interval_map_example.cpp)
 target_include_directories(interval_map_example PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
+add_executable(float_interval_map_example float_interval_map_example.cpp)
+target_include_directories(float_interval_map_example PUBLIC ${CMAKE_SOURCE_DIR}/src)
