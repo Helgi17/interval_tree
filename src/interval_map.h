@@ -76,18 +76,31 @@ public:
 	}
 
 	Pair<iterator, bool> insert(const key_type& k, const mapped_type& value) {
+		typedef Pair<iterator, bool> Res;
 		const pair_kv_type p(k, value);
-		return tree.insert_unique(p);
+		Pair<iterator, iterator> res = tree.find_place(k);
+		if (nullptr == res.y.current) {
+			return Res(tree.end(), false);
+		}
+		if (nullptr == res.x.current) {
+			return tree.insert_at(res.x, res.y, p);
+
+		} else {
+			return tree.insert_at(res.x, res.y, p);
+		}
 	}
 
 	Pair<iterator, bool> insert(const pair_kv_type& value_pair) {
 		return tree.insert_unique(value_pair);
 	}
 
-#ifdef CONTAINER_METHODS
 	void erase(iterator pos) {
+		if (pos != tree.end()) {
+			tree.erase(pos);
+		}
 	}
 
+#ifdef CONTAINER_METHODS
 	key_compare
 	key_comp() {
 		
@@ -97,10 +110,18 @@ public:
 	value_comp()
 	{
 	}
+#endif
 
 	iterator find(const key_type& k) {
+		iterator it = tree.find(k);
+		key_type p = (*it).x;
+		if (p.leftborder == k.leftborder && 
+			p.rightborder == k.rightborder) return it;
+		if (k.leftborder == k.rightborder &&
+			p.leftborder <= k.leftborder &&
+			p.rightborder >= k.leftborder) return it; 
+		return tree.end();
 	}
-#endif
 };
 
 }

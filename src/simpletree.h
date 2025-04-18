@@ -75,7 +75,7 @@ namespace SimpleTree
 		tmp->parent = node->parent;
 		node->parent = tmp;
 		node->left = tmp->right;
-		if (nullptr != tmp->left) {
+		if (nullptr != tmp->right) {
 			tmp->right->parent = node;
 		}
 		tmp->right = node;
@@ -146,7 +146,13 @@ namespace SimpleTree
 		}
 
 		while (x != root) {
-			x = balance(x);
+			if (x->parent->left == x) {
+				x = balance(x);
+				x->parent->left = x;
+			} else {
+				x = balance(x);
+				x->parent->right = x;
+			}
 			x = x->parent;
 		}
 		x = balance(x);
@@ -165,8 +171,12 @@ namespace SimpleTree
 			return node->right;
 		}
 		node->left = replace_min(node->left);
+		if (nullptr != node->left) {
+			node->left->parent = node;
+		}
 		return balance(node);
 	}
+
 
 	TreeNodeBase* rebalance_for_erase(
 					TreeNodeBase* const z, TreeNodeBase& header) {
@@ -177,41 +187,58 @@ namespace SimpleTree
 		TreeNodeBase*& leftmost = header.left;
 		TreeNodeBase*& rightmost = header.right;
 
-		if (z == parent->left) {
-			if (nullptr == right) {
-				parent->left = left;
-				if (nullptr != left) {
-					left->parent = parent;
-				}
-			} else {
-				TreeNodeBase* min = get_min(right);
-				min->right = replace_min(right);
-				min->left = left;
-				balance(min);
-				parent->left = min;
-				min->parent = parent;
+		if (nullptr == left && 
+			nullptr == right && 
+			parent == &header) {
+			header.parent = nullptr;
+			header.left = &header;
+			header.right = &header;
+			return z;
+		}
+
+		TreeNodeBase* min = nullptr;
+		if (nullptr == right) {
+			min = left;
+			if (nullptr != left) {
+				left->parent = parent;
 			}
-			leftmost = TreeNodeBase::sMinimum(parent);
 		} else {
-			if (nullptr == right) {
-				parent->right = left;
-				if (nullptr != left) {
-					left->parent = parent;
-				}
-			} else {
-				TreeNodeBase* min = get_min(right);
-				min->right = replace_min(right);
-				min->left = left;
-				balance(min);
-				parent->right = min;
-				min->parent = parent;
-			}
-			rightmost = TreeNodeBase::sMaximum(parent);
+			min = get_min(right);
+			min->right = replace_min(right);
+			if (nullptr != min->right) {
+				min->right->parent = min;
+			} 
+			min->left = left;
+			if (nullptr != left)
+				left->parent = min;	
+			min->parent = parent;
 		}
+
 		if (parent != &header) {
-			parent = balance(parent);
+			if (z == parent->left)
+				parent->left = min;
+			else
+				parent->right = min;
+		} else {
+			parent->parent = min;
 		}
-		header.parent = parent;
+		header.right = TreeNodeBase::sMaximum(header.parent);
+		header.left = TreeNodeBase::sMinimum(header.parent);
+
+		if (nullptr == min) min = parent; // only if right == nullptr
+		while (min != header.parent) {
+			if (min->parent->left == min) {
+				min = balance(min);
+				min->parent->left = min;
+			} else {
+				min = balance(min);
+				min->parent->right = min;
+			}
+			min = min->parent;
+		}
+		min = balance(min);
+		header.parent = min;
+
 		return z;
 	}
 
@@ -368,9 +395,16 @@ namespace SimpleTree
 			if (res.y) {
 				return Res(insert_node(res.x, res.y, value), true);
 			}
-			iterator it(res.x);
-			bool bres = false;
-			return Res(it, bres);
+			return Res(iterator(res.x), false);
+		}
+
+		Pair<typename Tree<Key, Val, KeyOfValue, Compare>::iterator, bool> 
+		insert_at(iterator x, iterator p, const value_type& value) {
+			typedef Pair<iterator, bool> Res;
+			if (nullptr != p.current) {
+				return Res(insert_node(x.current, p.current, value), true);
+			}
+			return Res(x, false);
 		}
 	
 	public:
@@ -386,7 +420,13 @@ namespace SimpleTree
 
 		iterator find(const Key& key) {
 			Pair<base_ptr, base_ptr> res = get_insert_pos(key);
-			return iterator(res.x);
+			if (nullptr != res.x) return iterator(res.x);
+			return end();
+		}
+
+		Pair<iterator, iterator> find_place(const Key& key) {
+			Pair<base_ptr, base_ptr> res = get_insert_pos(key);
+			return Pair(iterator(res.x), iterator(res.y));
 		}
 
 		iterator insert(Val val) {

@@ -17,7 +17,7 @@ public:
 	struct Compare {
 		template <typename T> 
 		bool operator()(const Interval<T>& a, const Interval<T>& b) {
-			return (a.leftborder < b.leftborder);
+			return (a.rightborder < b.leftborder);
 		}
 	};
 
