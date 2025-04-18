@@ -82,12 +82,7 @@ public:
 		if (nullptr == res.y.current) {
 			return Res(tree.end(), false);
 		}
-		if (nullptr == res.x.current) {
-			return tree.insert_at(res.x, res.y, p);
-
-		} else {
-			return tree.insert_at(res.x, res.y, p);
-		}
+		return tree.insert_at(res.x, res.y, p);
 	}
 
 	Pair<iterator, bool> insert(const pair_kv_type& value_pair) {
@@ -97,6 +92,13 @@ public:
 	void erase(iterator pos) {
 		if (pos != tree.end()) {
 			tree.erase(pos);
+		}
+	}
+
+	void erase(const key_type& k) {
+		iterator it = tree.find(k);
+		if (it != tree.end()) {
+			tree.erase(it);
 		}
 	}
 
