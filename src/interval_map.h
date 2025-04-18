@@ -80,11 +80,9 @@ public:
 		return tree.insert_unique(p);
 	}
 
-#ifdef CONTAINER_METHODS
 	Pair<iterator, bool> insert(const pair_kv_type& value_pair) {
 		return tree.insert_unique(value_pair);
 	}
-#endif
 
 #ifdef CONTAINER_METHODS
 	void erase(iterator pos) {
