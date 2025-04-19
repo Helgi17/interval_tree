@@ -25,15 +25,20 @@ void print(interval_map& m) {
 int main()
 {
 	interval_map imap;
-	Interval i1(1, 10), i2(21,23), i3(0,0), i4(11, 21), i5(112);
+	std::optional<Interval> i1 = Interval::create(1, 10);
+	std::optional<Interval> i2 = Interval::create(21,23);
+	std::optional<Interval> i3 = Interval::create(0,0);
+	std::optional<Interval> i4 = Interval::create(11, 21);
+	std::optional<Interval> i5 = Interval::create(112);
+	std::optional<Interval> i6 = Interval::create(30, 32);
 
 	/** Операции вставки */
-	imap[i1] = 1;
-	imap[{30, 32}] = -2;
-	imap.insert(i3, 3);
-	imap.insert(i2, 2);
-	imap.insert(i4, 5); /// <- Некорректная вставка
-	imap.insert(i5, 6);
+	if (i1)	imap[*i1] = 1;
+	if (i6) imap[*i6] = -2;
+	if (i3) imap.insert(*i3, 3);
+	if (i2) imap.insert(*i2, 2);
+	if (i4) imap.insert(*i4, 5); /// <- Некорректная вставка
+	if (i5) imap.insert(*i5, 6);
 
 	std::cout << "Insertions:" << std::endl;
 	print(imap);
@@ -48,29 +53,32 @@ int main()
 	print(imap);
 
 	/// Удаление по интервалу с точным совпадением
-	imap.erase({30, 32});
+	if (i6) imap.erase(*i6);
 	std::cout << "After erasing existing interval" << std::endl;
 	print(imap);
 
 	/// Удаление по итератору, найденному по точке
-	imap.erase(imap.find(2));
+	std::optional<Interval> i7 = Interval::create(2);
+	if (i7) imap.erase(imap.find(*i7));
 	std::cout << "After erasing nonexisting interval with iterator containing single value" << std::endl;
 	print(imap);
 
 	/// Удаление по точке
-	imap.erase(22);
+	std::optional<Interval> i8 = Interval::create(22);
+	if (i8) imap.erase(*i8);
 	std::cout << "After erasing interval by single value" << std::endl;
 	print(imap);
 
 	/// Удаление по точке, если интервала, его содержащего нет
-	imap.erase({10});
+	std::optional<Interval> i9 = Interval::create(10);
+	if (i9) imap.erase(*i9);
 	std::cout << "After trying to erase nonexisting interval" << std::endl;
 	print(imap);
 
-	imap.erase(0);
+	if (i3) imap.erase(*i3); // value 0
 	print(imap);
 
-	imap.erase(112);
+	if (i5) imap.erase(*i5); // value 112
 	print(imap);
 
 	return 0;

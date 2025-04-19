@@ -333,15 +333,15 @@ namespace SimpleTree
 	
 	private:
 		node_ptr get_node() {
-			return new TreeNode<Val>();
-		}
-
-		node_ptr get_node(const Val& value) {
-			return new TreeNode<Val>(value);
+			std::allocator<TreeNode<Val>> alloc;
+			return std::allocator_traits<std::allocator<TreeNode<Val>>>::
+					allocate(alloc, 1);
 		}
 
 		void drop_node(node_ptr p) {
-			delete p;
+			std::allocator<TreeNode<Val>> alloc;
+			std::allocator_traits<std::allocator<TreeNode<Val>>>::
+					deallocate(alloc, p, 1);
 		}
 
 		void construct_node(node_ptr node, const value_type& value) {

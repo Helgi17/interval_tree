@@ -25,15 +25,21 @@ void print(interval_map& m) {
 int main()
 {
 	interval_map imap;
-	Interval i1(1.1, 10.2), i2(21.3,23.4), i3(0.5,0.5), i4(11.6, 21.6), i5(112.7);
+	std::optional<Interval> i1 = Interval::create(1.1, 10.2);
+	std::optional<Interval> i2 = Interval::create(21.3,23.4);
+	std::optional<Interval> i3 = Interval::create(0.5,0.5);
+	std::optional<Interval> i4 = Interval::create(11.6, 21.6);
+	std::optional<Interval> i5 = Interval::create(112.7);
 
 	/** Операции вставки */
-	imap[i1] = 'a';
-	imap[{30.8, 32.9}] = 'b';
-	imap.insert(i3, 'c');
-	imap.insert(i2, 'd');
-	imap.insert(i4, 'e'); /// <- Некорректная вставка
-	imap.insert(i5, 'f');
+	if (i1) imap[*i1] = 'a';
+	
+	std::optional<Interval> i6 = Interval::create(30.8, 32.9);
+	if (i6) imap[*i6] = 'b';
+	if (i3) imap.insert(*i3, 'c');
+	if (i2) imap.insert(*i2, 'd');
+	if (i4) imap.insert(*i4, 'e'); /// <- Некорректная вставка
+	if (i5) imap.insert(*i5, 'f');
 
 	std::cout << "Insertions:" << std::endl;
 	print(imap);
@@ -48,29 +54,32 @@ int main()
 	print(imap);
 
 	/// Удаление по интервалу с точным совпадением
-	imap.erase({30.8, 32.9});
+	if (i6)imap.erase(*i6);
 	std::cout << "After erasing existing interval" << std::endl;
 	print(imap);
 
 	/// Удаление по итератору, найденному по точке
-	imap.erase(imap.find(2.0));
+	std::optional<Interval> i7 = Interval::create(2.0);
+	if (i7) imap.erase(imap.find(*i7));
 	std::cout << "After erasing nonexisting interval with iterator containing single value" << std::endl;
 	print(imap);
 
 	/// Удаление по точке
-	imap.erase(22.1);
+	std::optional<Interval> i8 = Interval::create(22.1);
+	if (i8) imap.erase(*i8);
 	std::cout << "After erasing interval by single value" << std::endl;
 	print(imap);
 
 	/// Удаление по точке, если интервала, его содержащего нет
-	imap.erase({10.2});
+	std::optional<Interval> i9 = Interval::create(10.2);
+	if (i9) imap.erase(*i9);
 	std::cout << "After trying to erase nonexisting interval" << std::endl;
 	print(imap);
 
-	imap.erase(0.5);
+	if (i3) imap.erase(*i3);
 	print(imap);
 
-	imap.erase(112.7);
+	if (i5) imap.erase(*i5);
 	print(imap);
 
 	return 0;

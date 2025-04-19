@@ -1,6 +1,9 @@
 #include <iostream>
+#include <optional>
 #include "simpletree.h"
 #include "interval.h"
+
+using Interval = NSInterval::Interval<int>;
 
 template <typename Key>
 struct keyOfValue {
@@ -19,20 +22,21 @@ struct key_comp {
 
 int main()
 {
-	NSInterval::Interval<int> interval1(1, 10), 
-			interval2(21, 22),
-			interval3(12, 19);
+	std::optional<Interval> interval1 = Interval::create(1, 10);
+	std::optional<Interval> interval2 = Interval::create(21, 22);
+	std::optional<Interval> interval3 = Interval::create(12, 19);
 
-	SimpleTree::Tree<NSInterval::Interval<int>, NSInterval::Interval<int>,
-			NSInterval::KeyOfValue<NSInterval::Interval<int>>,
+	SimpleTree::Tree<Interval, Interval,
+			NSInterval::KeyOfValue<Interval>,
 			NSInterval::Compare> intervalTree;
 	
-	intervalTree.insert(interval1);
-	intervalTree.insert(interval2);
-	intervalTree.insert(interval3);
+	if (interval1) intervalTree.insert(*interval1);
+	if (interval2) intervalTree.insert(*interval2);
+	if (interval3) intervalTree.insert(*interval3);
 
 	// Find existing
-	auto itf = intervalTree.find(12);
+	std::optional<Interval> i12 = Interval::create(12);
+	auto itf = intervalTree.find(*i12);
 	std::cout << "find " << (*itf).leftborder << ", " <<
 		   (*itf).rightborder << std::endl;
 	
@@ -40,7 +44,7 @@ int main()
 	intervalTree.erase(intervalTree.begin());
 	
 	// Get second
-	NSInterval::Interval<int> intervalt = *(++intervalTree.begin());
+	Interval intervalt = *(++intervalTree.begin());
 	
 	std::cout << intervalt.leftborder << ", " <<
 		   intervalt.rightborder << std::endl;
