@@ -75,19 +75,22 @@ public:
 		return (*res.x).y;
 	}
 
-	Pair<iterator, bool> insert(const key_type& k, const mapped_type& value) {
+	iterator insert(const key_type& k, const mapped_type& value) {
 		typedef Pair<iterator, bool> Res;
 		const pair_kv_type p(k, value);
 		Pair<iterator, iterator> res = tree.find_place(k);
 		if (nullptr == res.y.current) {
-			return Res(tree.end(), false);
+			return tree.end();
 		}
-		return tree.insert_at(res.x, res.y, p);
+		Res retval = tree.insert_at(res.x, res.y, p);
+		return retval.x;
 	}
 
-	Pair<iterator, bool> insert(const pair_kv_type& value_pair) {
-		return tree.insert_unique(value_pair);
-	}
+    Pair<iterator, bool> insert(const pair_kv_type& value_pair) {
+        return tree.insert_unique(value_pair);
+    }
+
+
 
 	void erase(iterator pos) {
 		if (pos != tree.end()) {

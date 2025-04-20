@@ -36,8 +36,18 @@ int main()
 	if (i1)	imap[*i1] = 1;
 	if (i6) imap[*i6] = -2;
 	if (i3) imap.insert(*i3, 3);
-	if (i2) imap.insert(*i2, 2);
-	if (i4) imap.insert(*i4, 5); /// <- Некорректная вставка
+	if (i2) {
+		auto it = imap.insert(*i2, 2);
+		if (it != imap.end()) {
+			std::cout << "insert i2(2) returns successfully" << std::endl;
+		}
+	}
+	if (i4) {
+		auto it = imap.insert(*i4, 5); /// <- Некорректная вставка
+		if (it == imap.end()) {
+			std::cout << "insert i4(5) returns unsuccessfully" << std::endl;
+		}
+	}
 	if (i5) imap.insert(*i5, 6);
 
 	std::cout << "Insertions:" << std::endl;
